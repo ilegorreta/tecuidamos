@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "370515451342",
+    "project_id": "tecuidamos-8274d",
+    "storage_bucket": "tecuidamos-8274d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370515451342:android:473427ac6b338a740adf9f",
+        "android_client_info": {
+          "package_name": "mx.itesm.tecuidamos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "370515451342-rpn3lean4qh1b1pbj4dg2tgjl2b7pjr1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiOM5IAAO-l5YACncLogOIJM38S3n9iZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "370515451342-rpn3lean4qh1b1pbj4dg2tgjl2b7pjr1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

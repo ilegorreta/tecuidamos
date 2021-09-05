@@ -1,0 +1,189 @@
+name: tecuidamos
+description: Aplicación para la creación de un sistema de evacuación inteligente implementado en CEDETEC
+
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  # The following adds:
+  #Cupertino special icons for iPhone
+  #GPS locator
+  #APIs en linea
+  #Cosas necesarias para la firebase
+  #Circulito que carga
+  #Animacion en el texto
+  #Iconos especiales
+  #Data Provider
+  #Shared Preferences: Nos ayuda a crear variables que conservan el valor incluso si se cierra la app
+  #Alertas dentro de la app
+  #Ajuste automático del tamaño del texto
+  #Integración de Mapbox pormedio de una Third-Party Widget
+
+  cupertino_icons: ^1.0.0
+  geolocator: ^6.1.13
+  http: ^0.12.2
+  firebase_core: ^0.7.0
+  firebase_auth: ^0.20.0+1
+  cloud_firestore: ^0.16.0
+  modal_progress_hud: ^0.1.3
+  animated_text_kit: ^3.1.0
+  outline_material_icons: ^0.1.1
+  material_design_icons_flutter: ^4.0.5855
+  provider: ^4.3.3
+  shared_preferences: ^0.5.12+4
+  rflutter_alert: ^1.1.0
+  auto_size_text: ^2.1.0
+  flutter_map: ^0.11.0
+  beacons_plugin: ^1.0.20
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    - images/
+
+  fonts:
+
+  - family: HNRegular
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-01.ttf
+
+  - family: HNBold
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-Bold-02.ttf
+
+  - family: HNBoldItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-BoldItalic-04.ttf
+
+  - family: HNCondensedBlack
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-CondensedBlack-10.ttf
+
+  - family: HNCondensedBold
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-CondensedBold-05.ttf
+
+  - family: HNItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-Italic-03.ttf
+
+  - family: HNLight
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-Light-08.ttf
+
+  - family: HNLightItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-LightItalic-09.ttf
+
+  - family: HNMedium
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-Medium-11.ttf
+
+  - family: HNMediumItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-MediumItalic-12.ttf
+
+  - family: HNThin
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-Thin-13.ttf
+
+  - family: HNThinItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-ThinItalic-14.ttf
+
+  - family: HNUltraLight
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-UltraLight-06.ttf
+
+  - family: HNUltraLightItalic
+    fonts:
+    - asset: fonts/Helvetica Neue/HelveticaNeue-UltraLightItalic-07.ttf
+
+  - family: MPLight
+    fonts:
+    - asset: fonts/Myriad/MyriadPro-Light.ttf
+
+  - family: SFRegular
+    fonts:
+    - asset: fonts/SF/SF-UI-Display-Regular.ttf
+
+  - family: SFBlackItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-BlackItalic.ttf
+
+  - family: SFBoldItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-BoldItalic.ttf
+
+  - family: SFHeavyItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-HeavyItalic.ttf
+
+  - family: SFLightItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-LightItalic.ttf
+
+  - family: SFMediumItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-MediumItalic.ttf
+
+  - family: SFRegularItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-RegularItalic.ttf
+
+  - family: SFSemiboldItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-SemiboldItalic.ttf
+
+  - family: SFThinItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-ThinItalic.ttf
+
+  - family: SFUltralightItalic
+    fonts:
+    - asset: fonts/SF/SFProDisplay-UltralightItalic.ttf
+
+  - family: SFBlack
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Black.ttf
+
+  - family: SFBold
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Bold.ttf
+
+  - family: SFHeavy
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Heavy.ttf
+
+  - family: SFLight
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Light.ttf
+
+  - family: SFMedium
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Medium.ttf
+
+  - family: SFSemibold
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Semibold.ttf
+
+  - family: SFThin
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Thin.ttf
+
+  - family: SFUltralight
+    fonts:
+    - asset: fonts/SF/SFUIDisplay-Ultralight.ttf

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>370515451342-fkns3t0d6b06q85ukvjoipp0liai2bvc.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.370515451342-fkns3t0d6b06q85ukvjoipp0liai2bvc</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA-uU0J9S63WU8_QASG50bHlhtv5taeEbs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>370515451342</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>mx.itesm.tecuidamos</string>
+	<key>PROJECT_ID</key>
+	<string>tecuidamos-8274d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tecuidamos-8274d.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:370515451342:ios:d8f9a3a9ba80080d0adf9f</string>
+</dict>
+</plist>
