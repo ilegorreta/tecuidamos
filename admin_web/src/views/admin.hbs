@@ -1,0 +1,879 @@
+<main>
+
+    <!--##################################LÓGICA DE LA PÁGINA##################################-->
+    <script>
+        //INICIALIZAR FIREBASE
+        var firebaseConfig = {
+            apiKey: "AIzaSyAaCeLHGKr1KiV-KfDWAUhfii-IvqnlKZ4",
+            authDomain: "tecuidamos-8274d.firebaseapp.com",
+            projectId: "tecuidamos-8274d",
+            storageBucket: "tecuidamos-8274d.appspot.com",
+            messagingSenderId: "370515451342",
+            appId: "1:370515451342:web:e59aa2a38d78f61c0adf9f",
+            measurementId: "G-NS5VK98CP1"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        var firestore = firebase.firestore(); //BASE DE DATOS FIRESTORE
+
+        //DECLARACIÓN DE VARIABLES
+        var cont = {{ contadorPiso }};
+        var alertwarner = {{ alerta }};
+        var listaBeaconsVirtuales = [];
+        var usuariosP0 = 0;
+        var usuariosP1 = 0;
+        var usuariosP2 = 0;
+        var usuariosP3 = 0;
+        var i0 = 0;
+        var i1 = 0;
+        var i2 = 0;
+        var i3 = 0;
+        var hide0 = document.getElementById('espaNode');
+        var hide1 = document.getElementById('espaNode1');
+        var hide2 = document.getElementById('espaNode2');
+        var hide3 = document.getElementById('espaNode3');
+
+        getFireStoreVirtualBeacons(firestore).then((beaconsVirtuales) => {
+            listaBeaconsVirtuales = beaconsVirtuales;
+            console.log("Aquí está el valor con el que trabajarán las tarjetas: ", listaBeaconsVirtuales);
+            añadir(listaBeaconsVirtuales);
+            for (var i = 0; i < listaBeaconsVirtuales.length; i++) {
+                if (listaBeaconsVirtuales[i].Piso == 0) {
+                    usuariosP0 += listaBeaconsVirtuales[i].Usuarios;
+                } else if (listaBeaconsVirtuales[i].Piso == 1) {
+                    usuariosP1 += listaBeaconsVirtuales[i].Usuarios;
+                } else if (listaBeaconsVirtuales[i].Piso == 2) {
+                    usuariosP2 += listaBeaconsVirtuales[i].Usuarios;
+                } else if (listaBeaconsVirtuales[i].Piso == 3) {
+                    usuariosP3 += listaBeaconsVirtuales[i].Usuarios;
+                }
+            }
+            console.log("Total de usuarios en PB: ", usuariosP0);
+            console.log("Total de usuarios en P1: ", usuariosP1);
+            console.log("Total de usuarios en P2: ", usuariosP2);
+            console.log("Total de usuarios en P3: ", usuariosP3);
+
+            usuariosP0 = "Total: " + usuariosP0.toString();
+            usuariosP1 = "Total: " + usuariosP1.toString();
+            usuariosP2 = "Total: " + usuariosP2.toString();
+            usuariosP3 = "Total: " + usuariosP3.toString();
+
+            document.getElementById("T0").innerHTML = usuariosP0;
+            document.getElementById("T1").innerHTML = usuariosP1;
+            document.getElementById("T2").innerHTML = usuariosP2;
+            document.getElementById("T3").innerHTML = usuariosP3;
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            if(alertwarner == 0){
+
+            }else if (alertwarner == 1){
+                alert("El beacon virtual no pudo ser agregado con éxito. Verifique que su nombre corresponda con los declarados en la topología física (Firestore Collection: 'Conteo de Alumnos por Salón')");
+            }else if (alertwarner == 2){
+                alert("El beacon virtual no pudo ser agregado con éxito. Verifique que su ID no haya sido repetido en los nodos virtuales (Firestore Collection: 'Beacons Virtuales')");
+            }else if (alertwarner == 3){
+                alert("El beacon virtual fue agregado con éxito");
+            }
+
+            console.log("Valor actual del contador: ", cont);
+            document.getElementById("pisoContainer").setAttribute("value", cont);
+
+            if (cont == 0) {
+                document.getElementById("imagenpisos").setAttribute("src", "piso0.jPEG");
+            } else if (cont == 1) {
+                document.getElementById("imagenpisos").setAttribute("src", "piso1.jPEG");
+            } else if (cont == 2) {
+                document.getElementById("imagenpisos").setAttribute("src", "piso2.jPEG");
+            } else if (cont == 3) {
+                document.getElementById("imagenpisos").setAttribute("src", "piso3.jPEG");
+            }
+
+            //ACTUADORES
+            document.getElementById("updateUsers").addEventListener("click", (event) => {
+                //console.log("Ejecutando botón");
+                console.time("Loop de Actualización de Usuarios por Beacon");
+                updateUsersInVirtualCollection(firestore).then(() => {
+                    updateUsersInVirtualCollection(firestore).then(() => {
+                        location.reload(); //Actualizar página
+                        console.timeEnd("Loop de Actualización de Usuarios por Beacon");
+                    });
+                });
+            });
+
+            document.getElementById("Dijkstra").addEventListener("click", (event) => {
+                getFireStoreDijkstraToJSON(firestore).then((JsoN) => {
+                    console.log("Este es el JSON de Dijkstra hasta ahora: ", JsoN);
+                    document.getElementById("JSONContainer").setAttribute('value', JsoN);
+                    document.getElementById("formaJSON").submit();
+                });
+            });
+
+            document.getElementById("Usuarios").addEventListener("click", (event) => {
+                getFireStoreUsersToJSON(firestore).then((JsoN) => {
+                    console.log("Este es el JSON de Usuarios hasta ahora: ", JsoN);
+                    document.getElementById("UsersContainer").setAttribute('value', JsoN);
+                    document.getElementById("formaUsers").submit();
+                });
+            });
+        });
+
+        //FUNCIONES SÍNCRONAS
+        function atras() {
+            cont--;
+            var hide0 = document.getElementById('espaNode');
+            var hide1 = document.getElementById('espaNode1');
+            var hide2 = document.getElementById('espaNode2');
+            var hide3 = document.getElementById('espaNode3');
+
+            if (cont < 0) {
+                cont = 3;
+                document.getElementById('imagenpisos').src = "piso3.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "block";
+                //añadir(listaBeaconsVirtuales);
+            }
+            if (cont == 0) {
+                document.getElementById('imagenpisos').src = "piso0.jpeg";
+                hide0.style.display = "block";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+                //añadir(listaBeaconsVirtuales);
+            }
+            if (cont == 1) {
+                document.getElementById('imagenpisos').src = "piso1.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "block";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+                //añadir(listaBeaconsVirtuales);
+            }
+            if (cont == 2) {
+                document.getElementById('imagenpisos').src = "piso2.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "block";
+                hide3.style.display = "none";
+                //añadir(listaBeaconsVirtuales);
+            }
+            añadir(listaBeaconsVirtuales);
+            console.log("Valor actual del contador: ", cont);
+            document.getElementById("pisoContainer").setAttribute("value", cont);
+        }
+
+        function adelante() {
+            cont++;
+            var hide0 = document.getElementById('espaNode');
+            var hide1 = document.getElementById('espaNode1');
+            var hide2 = document.getElementById('espaNode2');
+            var hide3 = document.getElementById('espaNode3');
+
+            if (cont > 3) {
+                cont = 0;
+                document.getElementById('imagenpisos').src = "piso0.jpeg";
+                hide0.style.display = "block";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+
+            }
+            if (cont == 3) {
+                document.getElementById('imagenpisos').src = "piso3.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "block";
+                //añadir(listaBeaconsVirtuales);
+            }
+            if (cont == 1) {
+                document.getElementById('imagenpisos').src = "piso1.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "block";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+                //añadir(listaBeaconsVirtuales);
+            }
+            if (cont == 2) {
+                document.getElementById('imagenpisos').src = "piso2.jpeg";
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "block";
+                hide3.style.display = "none";
+                //añadir(listaBeaconsVirtuales);
+            }
+
+            añadir(listaBeaconsVirtuales);
+            console.log("Valor actual del contador: ", cont);
+            document.getElementById("pisoContainer").setAttribute("value", cont);
+        }
+
+        function añadir(beaconsVirtuales) {
+            var hide0 = document.getElementById('espaNode');
+            var hide1 = document.getElementById('espaNode1');
+            var hide2 = document.getElementById('espaNode2');
+            var hide3 = document.getElementById('espaNode3');
+
+            if (cont == 0) {
+                //i0++;
+
+                hide0.style.display = "block";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+
+                for (var j = 0; j < beaconsVirtuales.length; j++) {
+                    if (beaconsVirtuales[j].Piso == cont) {
+                        var temp = document.getElementById(beaconsVirtuales[j].Salon)
+                        if (temp != null) {
+                            console.log("Ya existe este salon");
+                        } else {
+
+                            var ndiv = document.createElement("Div"); /* creamos nuevo div*/
+                            ndiv.setAttribute("class", "TarjetaBeacon");
+                            var ediv = document.getElementById("espaNode"); /* variable que nos dice donde esta el div de nodo*/
+                            ediv.appendChild(ndiv); /* el div creado va encerrado por el div de nodo*/
+                            ndiv.id = beaconsVirtuales[j].Salon;
+
+                            var namev = beaconsVirtuales[j].Salon;
+                            var namev = namev.replace(/_/g, " ");
+
+                            var nh = document.createElement("h3");
+                            var hname = document.createTextNode("Beacon: " + namev + "- Planta Baja");
+                            nh.appendChild(hname);
+                            ndiv.appendChild(nh);
+
+                            var turnOnOffButton = document.createElement("a");
+                            turnOnOffButton.setAttribute("href", "/refresh-beacon-state/" + namev);
+
+                            if(beaconsVirtuales[j].Activado === true){
+                                turnOnOffButton.setAttribute("class", "buttonOn");
+                                var msgbuttonAct = document.createTextNode("On");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }else{
+                                turnOnOffButton.setAttribute("class", "buttonOff");
+                                var msgbuttonAct = document.createTextNode("Off");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }
+
+                            var deletebuton = document.createElement("a");
+                            deletebuton.setAttribute("class", "deletebuttonBeacon");
+                            deletebuton.setAttribute("href", "/delete-user/" + namev);
+                            var msgbutton = document.createTextNode("X");
+                            deletebuton.appendChild(msgbutton);
+                            nh.appendChild(deletebuton);
+
+                            var namep = document.createElement("p"); /* creamos nuevo parrafo de name*/
+                            namep.innerHTML = " Nombre: " + namev;
+                            ndiv.appendChild(namep).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nid = document.createElement("p"); /* creamos nuevo parrafo de id*/
+                            var idv = beaconsVirtuales[j].ID;
+                            nid.innerHTML = " ID: " + idv;
+                            ndiv.appendChild(nid).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ncord = document.createElement("p"); /* creamos nuevo parrafo de cordenadas*/
+                            var cordv = beaconsVirtuales[j].Coordenadas;
+                            ncord.innerHTML = " Coordenada: " + cordv;
+                            ndiv.appendChild(ncord).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nusu = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var usuv = beaconsVirtuales[j].Usuarios.toString();
+                            nusu.innerHTML = " Usuarios: " + usuv;
+                            ndiv.appendChild(nusu).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nvec = document.createElement("p"); /* creamos nuevo parrafo de vecinos*/
+                            var vecv = beaconsVirtuales[j].Vecinos;
+                            nvec.innerHTML = " Vecinos: " + vecv;
+                            ndiv.appendChild(nvec).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nact = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var actv = beaconsVirtuales[j].Activado.toString();
+                            nact.innerHTML = " Activo: " + actv;
+                            ndiv.appendChild(nact).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ntip = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var tipov = beaconsVirtuales[j].Tipo;
+                            ntip.innerHTML = " Tipo: " + tipov;
+                            ndiv.appendChild(ntip).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nequ = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var equiv = beaconsVirtuales[j].Equivalente;
+                            nequ.innerHTML = " Equivalente: " + equiv;
+                            ndiv.appendChild(nequ).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlat = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var latv = beaconsVirtuales[j].Latitud;
+                            nlat.innerHTML = " Latitud: " + latv;
+                            ndiv.appendChild(nlat).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlon = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var lonv = beaconsVirtuales[j].Longitud;
+                            nlon.innerHTML = " Latitud: " + lonv;
+                            ndiv.appendChild(nlon).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+                            
+                        }
+                    }
+                }
+            } else if (cont == 1) {
+                //i0++;
+
+                hide0.style.display = "none";
+                hide1.style.display = "block";
+                hide2.style.display = "none";
+                hide3.style.display = "none";
+
+                for (var j = 0; j < beaconsVirtuales.length; j++) {
+                    if (beaconsVirtuales[j].Piso == cont) {
+                        var temp = document.getElementById(beaconsVirtuales[j].Salon)
+                        if (temp != null) {
+                            console.log("Ya existe este salon");
+                        } else {
+
+                            var ndiv = document.createElement("Div"); /* creamos nuevo div*/
+                            ndiv.setAttribute("class", "TarjetaBeacon");
+                            var ediv = document.getElementById("espaNode1"); /* variable que nos dice donde esta el div de nodo*/
+                            ediv.appendChild(ndiv); /* el div creado va encerrado por el div de nodo*/
+                            ndiv.id = beaconsVirtuales[j].Salon;
+
+                            var namev = beaconsVirtuales[j].Salon;
+                            var namev = namev.replace(/_/g, " ");
+
+                            var nh = document.createElement("h3");
+                            var hname = document.createTextNode("Beacon: " + namev + "- Primer Piso");
+                            nh.appendChild(hname);
+                            ndiv.appendChild(nh);
+
+                            var turnOnOffButton = document.createElement("a");
+                            turnOnOffButton.setAttribute("href", "/refresh-beacon-state/" + namev);
+                            
+                            if(beaconsVirtuales[j].Activado === true){
+                                turnOnOffButton.setAttribute("class", "buttonOn");
+                                var msgbuttonAct = document.createTextNode("On");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }else{
+                                turnOnOffButton.setAttribute("class", "buttonOff");
+                                var msgbuttonAct = document.createTextNode("Off");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }
+
+                            var deletebuton = document.createElement("a");
+                            deletebuton.setAttribute("class", "deletebuttonBeacon");
+                            deletebuton.setAttribute("href", "/delete-user/" + namev);
+                            var msgbutton = document.createTextNode("X");
+                            deletebuton.appendChild(msgbutton);
+                            nh.appendChild(deletebuton);
+
+                            var namep = document.createElement("p"); /* creamos nuevo parrafo de name*/
+                            namep.innerHTML = " Nombre: " + namev;
+                            ndiv.appendChild(namep).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nid = document.createElement("p"); /* creamos nuevo parrafo de id*/
+                            var idv = beaconsVirtuales[j].ID;
+                            nid.innerHTML = " ID: " + idv;
+                            ndiv.appendChild(nid).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ncord = document.createElement("p"); /* creamos nuevo parrafo de cordenadas*/
+                            var cordv = beaconsVirtuales[j].Coordenadas;
+                            ncord.innerHTML = " Coordenada: " + cordv;
+                            ndiv.appendChild(ncord).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nusu = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var usuv = beaconsVirtuales[j].Usuarios.toString();
+                            nusu.innerHTML = " Usuarios: " + usuv;
+                            ndiv.appendChild(nusu).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nvec = document.createElement("p"); /* creamos nuevo parrafo de vecinos*/
+                            var vecv = beaconsVirtuales[j].Vecinos;
+                            nvec.innerHTML = " Vecinos: " + vecv;
+                            ndiv.appendChild(nvec).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nact = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var actv = beaconsVirtuales[j].Activado.toString();
+                            nact.innerHTML = " Activo: " + actv;
+                            ndiv.appendChild(nact).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ntip = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var tipov = beaconsVirtuales[j].Tipo;
+                            ntip.innerHTML = " Tipo: " + tipov;
+                            ndiv.appendChild(ntip).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nequ = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var equiv = beaconsVirtuales[j].Equivalente;
+                            nequ.innerHTML = " Equivalente: " + equiv;
+                            ndiv.appendChild(nequ).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlat = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var latv = beaconsVirtuales[j].Latitud;
+                            nlat.innerHTML = " Latitud: " + latv;
+                            ndiv.appendChild(nlat).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlon = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var lonv = beaconsVirtuales[j].Longitud;
+                            nlon.innerHTML = " Latitud: " + lonv;
+                            ndiv.appendChild(nlon).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                        }
+                    }
+                }
+            } else if (cont == 2) {
+                //i0++;
+
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "block";
+                hide3.style.display = "none";
+
+                for (var j = 0; j < beaconsVirtuales.length; j++) {
+                    if (beaconsVirtuales[j].Piso == cont) {
+                        var temp = document.getElementById(beaconsVirtuales[j].Salon)
+                        if (temp != null) {
+                            console.log("Ya existe este salon");
+                        } else {
+                            var ndiv = document.createElement("Div"); /* creamos nuevo div*/
+                            ndiv.setAttribute("class", "TarjetaBeacon");
+                            var ediv = document.getElementById("espaNode2"); /* variable que nos dice donde esta el div de nodo*/
+                            ediv.appendChild(ndiv); /* el div creado va encerrado por el div de nodo*/
+                            ndiv.id = beaconsVirtuales[j].Salon;
+
+                            var namev = beaconsVirtuales[j].Salon;
+                            var namev = namev.replace(/_/g, " ");
+
+                            var nh = document.createElement("h3");
+                            var hname = document.createTextNode("Beacon: " + namev + "- Segundo Piso");
+                            nh.appendChild(hname);
+                            ndiv.appendChild(nh);
+
+                            var turnOnOffButton = document.createElement("a");
+                            turnOnOffButton.setAttribute("href", "/refresh-beacon-state/" + namev);
+                            
+                            if(beaconsVirtuales[j].Activado === true){
+                                turnOnOffButton.setAttribute("class", "buttonOn");
+                                var msgbuttonAct = document.createTextNode("On");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }else{
+                                turnOnOffButton.setAttribute("class", "buttonOff");
+                                var msgbuttonAct = document.createTextNode("Off");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }
+
+                            var deletebuton = document.createElement("a");
+                            deletebuton.setAttribute("class", "deletebuttonBeacon");
+                            deletebuton.setAttribute("href", "/delete-user/" + namev);
+                            var msgbutton = document.createTextNode("X");
+                            deletebuton.appendChild(msgbutton);
+                            nh.appendChild(deletebuton);
+
+                            var namep = document.createElement("p"); /* creamos nuevo parrafo de name*/
+                            namep.innerHTML = " Nombre: " + namev;
+                            ndiv.appendChild(namep).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nid = document.createElement("p"); /* creamos nuevo parrafo de id*/
+                            var idv = beaconsVirtuales[j].ID;
+                            nid.innerHTML = " ID: " + idv;
+                            ndiv.appendChild(nid).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ncord = document.createElement("p"); /* creamos nuevo parrafo de cordenadas*/
+                            var cordv = beaconsVirtuales[j].Coordenadas;
+                            ncord.innerHTML = " Coordenada: " + cordv;
+                            ndiv.appendChild(ncord).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nusu = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var usuv = beaconsVirtuales[j].Usuarios.toString();
+                            nusu.innerHTML = " Usuarios: " + usuv;
+                            ndiv.appendChild(nusu).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nvec = document.createElement("p"); /* creamos nuevo parrafo de vecinos*/
+                            var vecv = beaconsVirtuales[j].Vecinos;
+                            nvec.innerHTML = " Vecinos: " + vecv;
+                            ndiv.appendChild(nvec).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nact = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var actv = beaconsVirtuales[j].Activado.toString();
+                            nact.innerHTML = " Activo: " + actv;
+                            ndiv.appendChild(nact).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ntip = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var tipov = beaconsVirtuales[j].Tipo;
+                            ntip.innerHTML = " Tipo: " + tipov;
+                            ndiv.appendChild(ntip).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nequ = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var equiv = beaconsVirtuales[j].Equivalente;
+                            nequ.innerHTML = " Equivalente: " + equiv;
+                            ndiv.appendChild(nequ).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlat = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var latv = beaconsVirtuales[j].Latitud;
+                            console.log("ESTA ES LATITUD", latv);
+                            nlat.innerHTML = " Latitud: " + latv;
+                            ndiv.appendChild(nlat).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlon = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var lonv = beaconsVirtuales[j].Longitud;
+                            console.log("ESTA ES LONGITUD", lonv);
+                            nlon.innerHTML = " Latitud: " + lonv;
+                            ndiv.appendChild(nlon).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                        }
+                    }
+                }
+            } else if (cont == 3) {
+                //i0++;
+
+                hide0.style.display = "none";
+                hide1.style.display = "none";
+                hide2.style.display = "none";
+                hide3.style.display = "block";
+
+                for (var j = 0; j < beaconsVirtuales.length; j++) {
+                    if (beaconsVirtuales[j].Piso == cont) {
+                        var temp = document.getElementById(beaconsVirtuales[j].Salon)
+                        if (temp != null) {
+                            console.log("Ya existe este salon");
+                        } else {
+                            var ndiv = document.createElement("Div"); /* creamos nuevo div*/
+                            ndiv.setAttribute("class", "TarjetaBeacon");
+                            var ediv = document.getElementById("espaNode3"); /* variable que nos dice donde esta el div de nodo*/
+                            ediv.appendChild(ndiv); /* el div creado va encerrado por el div de nodo*/
+                            ndiv.id = beaconsVirtuales[j].Salon;
+
+                            var namev = beaconsVirtuales[j].Salon;
+                            var namev = namev.replace(/_/g, " ");
+
+                            var nh = document.createElement("h3");
+                            var hname = document.createTextNode("Beacon: " + namev + "- Tercer Piso");
+                            nh.appendChild(hname);
+                            ndiv.appendChild(nh);
+
+                            var turnOnOffButton = document.createElement("a");
+                            turnOnOffButton.setAttribute("href", "/refresh-beacon-state/" + namev);
+                            
+                            if(beaconsVirtuales[j].Activado === true){
+                                turnOnOffButton.setAttribute("class", "buttonOn");
+                                var msgbuttonAct = document.createTextNode("On");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }else{
+                                turnOnOffButton.setAttribute("class", "buttonOff");
+                                var msgbuttonAct = document.createTextNode("Off");
+                                turnOnOffButton.appendChild(msgbuttonAct);
+                                nh.appendChild(turnOnOffButton);
+                            }
+
+                            var deletebuton = document.createElement("a");
+                            deletebuton.setAttribute("class", "deletebuttonBeacon");
+                            deletebuton.setAttribute("href", "/delete-user/" + namev);
+                            var msgbutton = document.createTextNode("X");
+                            deletebuton.appendChild(msgbutton);
+                            nh.appendChild(deletebuton);
+
+                            var namep = document.createElement("p"); /* creamos nuevo parrafo de name*/
+                            namep.innerHTML = " Nombre: " + namev;
+                            ndiv.appendChild(namep).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nid = document.createElement("p"); /* creamos nuevo parrafo de id*/
+                            var idv = beaconsVirtuales[j].ID;
+                            nid.innerHTML = " ID: " + idv;
+                            ndiv.appendChild(nid).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ncord = document.createElement("p"); /* creamos nuevo parrafo de cordenadas*/
+                            var cordv = beaconsVirtuales[j].Coordenadas;
+                            ncord.innerHTML = " Coordenada: " + cordv;
+                            ndiv.appendChild(ncord).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nusu = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var usuv = beaconsVirtuales[j].Usuarios.toString();
+                            nusu.innerHTML = " Usuarios: " + usuv;
+                            ndiv.appendChild(nusu).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nvec = document.createElement("p"); /* creamos nuevo parrafo de vecinos*/
+                            var vecv = beaconsVirtuales[j].Vecinos;
+                            nvec.innerHTML = " Vecinos: " + vecv;
+                            ndiv.appendChild(nvec).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nact = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var actv = beaconsVirtuales[j].Activado.toString();
+                            nact.innerHTML = " Activo: " + actv;
+                            ndiv.appendChild(nact).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var ntip = document.createElement("p"); /* creamos nuevo parrafo de tipo*/
+                            var tipov = beaconsVirtuales[j].Tipo;
+                            ntip.innerHTML = " Tipo: " + tipov;
+                            ndiv.appendChild(ntip).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nequ = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var equiv = beaconsVirtuales[j].Equivalente;
+                            nequ.innerHTML = " Equivalente: " + equiv;
+                            ndiv.appendChild(nequ).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlat = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var latv = beaconsVirtuales[j].Latitud;
+                            nlat.innerHTML = " Latitud: " + latv;
+                            ndiv.appendChild(nlat).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                            var nlon = document.createElement("p"); /* creamos nuevo parrafo de equivalente*/
+                            var lonv = beaconsVirtuales[j].Longitud;
+                            nlon.innerHTML = " Latitud: " + lonv;
+                            ndiv.appendChild(nlon).style.display = "inline"; /*el parrafo nuevo con valor de n casilla esta en el div que creamos*/
+
+                        }
+                    }
+                }
+            }
+
+        }
+
+        //FUNCIONES ASÍNCRONAS (USO DE FIRESTORE)
+        async function getFireStoreVirtualBeacons(fs) { //FUNCIÓN ASÍNCRONA PARA MANDAR EL JSON CON DATOS DE DIJKSTRA
+            var vb = [];
+            var snapshot = await fs.collection('Beacons Virtuales').get();
+            snapshot.forEach((doc) => {
+                var nombreActual = doc.data()['Nombre'];
+                nombreActual = nombreActual.replace(/ /g, "_");
+                vb.push({
+                    Salon: nombreActual,
+                    ID: doc.data()['ID'],
+                    Coordenadas: doc.data()['Coordenadas'],
+                    Usuarios: doc.data()['Usuarios'],
+                    Vecinos: doc.data()['Vecinos'],
+                    Activado: doc.data()['Activado'],
+                    Tipo: doc.data()['Tipo'],
+                    Equivalente: doc.data()['Equivalente'],
+                    Latitud: doc.data()['Latitud'],
+                    Longitud: doc.data()['Longitud'],
+                    Piso: doc.data()['Piso']
+                });
+            });
+            return vb;
+        }
+
+        async function updateUsers(fs, nombre, usuariosSalon, arr) { //FUNCIÓN PARA ACTUALIZAR NÚMERO DE USUARIOS
+            console.log("Sí me metí aquí: ", nombre);
+            await fs.collection('Beacons Virtuales').doc(nombre).update({ 'Usuarios': usuariosSalon, 'Vecinos': arr });
+            console.log("sí pude hacer el push");
+        }
+
+        async function getFireStoreDijkstraToJSON(fs, name) { //FUNCIÓN ASÍNCRONA PARA MANDAR EL JSON CON DATOS DE DIJKSTRA
+            var jsonaguardar = {};
+            var snapshot = await fs.collection('Beacons Virtuales').get();
+            snapshot.forEach((doc) => {
+                var nombreactual = doc.data()['Nombre'];
+                console.log(nombreactual);
+                jsonaguardar[nombreactual] = {
+                    ID: doc.data()['ID'],
+                    Coordenadas: doc.data()['Coordenadas'],
+                    Usuarios: doc.data()['Usuarios'],
+                    Vecinos: doc.data()['Vecinos'],
+                    Activado: doc.data()['Activado'],
+                    Tipo: doc.data()['Tipo'],
+                    Equivalente: doc.data()['Equivalente'],
+                    Piso: doc.data()['Piso']
+                };
+            });
+            return JSON.stringify(jsonaguardar);
+        }
+
+        async function getFireStoreUsersToJSON(fs, name) { //FUNCIÓN ASÍNCRONA PARA MANDAR EL JSON CON DATOS DE USUARIOS
+            var jsonaguardar = {};
+            var snapshot = await fs.collection('Ruta de Entrada').get();
+            snapshot.forEach((doc) => {
+                var usuarioactual = doc.data()['Usuario'];
+                console.log(usuarioactual);
+                jsonaguardar[usuarioactual] = {
+                    Usuario: usuarioactual,
+                    Ubicacion: doc.data()['Edificio'] + " " + doc.data()['Salón']
+                };
+            });
+            return JSON.stringify(jsonaguardar);
+        }
+
+        async function updateUsersInVirtualCollection(fs) { //FUNCIÓN ASÍNCRONA PARA MANDAR EL JSON CON DATOS DE USUARIOS
+            let salonesData = [];
+            const snapshot1 = await fs.collection('Conteo de Alumnos por Salón').get();
+            const snapshot2 = await fs.collection('Beacons Virtuales').get();
+            snapshot1.forEach((doc) => {
+                var salon = doc.data()['Edificio'] + ' ' + doc.data()['Salón'];
+                var total = doc.data()['Total'];
+                salonesData.push({
+                    key: salon,
+                    value: total
+                });
+            });
+            snapshot2.forEach((doc) => {
+                var nombreBeaconActual = doc.data()['Nombre'];
+                var vecinosBeaconActual = doc.data()['Vecinos'];
+                for (var i = 0; i < salonesData.length; i++) {
+                    if (nombreBeaconActual == salonesData[i]['key']) {
+                        var usuariosSalon = salonesData[i]['value'];
+                        var valor = salonesData[i]['value']
+                        var finalArr = [];
+                        var arrTemp = vecinosBeaconActual.split("'");
+                        console.log("Los vecinos son: ", arrTemp);
+                        arrTemp.forEach((element) => {
+                            snapshot2.forEach((doc) => {
+                                if(element == doc.data().Nombre){
+                                    finalArr.push("(" + "#" + element + "#" + ", " + doc.data().ID.toString() + ", " + doc.data().Usuarios.toString() + ")");
+                                }
+                            });
+                        });
+                        finalArr = finalArr.toString();
+                        finalArr = finalArr.replace(/#/g, "'");
+                        finalArr = "[" + finalArr + "]";
+                        console.log("FINAL ARRAY: ", finalArr);
+
+                        updateUsers(fs, nombreBeaconActual, usuariosSalon, finalArr);
+                        //console.log("Actualizado el número de usuarios para beacon: ", doc.data()['Nombre']);
+                    }
+                }
+            });
+        }
+
+    </script>
+
+
+    <!--##################################HTML##################################-->
+    <div class="logotecuidamos">
+        <img class="logotecuida" src="TECuidamos_Logo.png" alt="si_icon">
+    </div>
+    <div class="logoteclogo">
+        <img class="logotec" src="logotec.png" alt="si_icon">
+    </div>
+
+    <div class="mainbox">
+        <div class="in_mainbox">
+            <input type="button" class="botonatras" value="◄" onclick=atras();>
+            <input type="button" class="botonforward" value="►" onclick=adelante();>
+            <img class="piso1im" id="imagenpisos" src="" alt="si_icon">
+        </div>
+    </div>
+
+    <div class="agregarDatos">
+        <h2 class="datosHeader">DATOS</h2>
+
+        <form action="/new-beacon" method="POST">
+            <input type="hidden" name="_csrf" value={{csrfToken}}>
+            <div class="form-group">
+                <input type="hidden" name="piso" id="pisoContainer" value="">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Nombre</h2>
+                <input type="text" name="nNombre" placeholder="Nombre" class="nombre" id="nombree" autocomplete="off"
+                    autofocus>
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">ID</h2>
+                <input type="text" name="nID" placeholder="Numero Entero" class="id" id="idd" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Coordenadas</h2>
+                <input type="text" name="nCoordenadas" placeholder="(fila, columna)" class="cord" id="cordd"
+                    autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Vecinos</h2>
+                <input type="text" name="nVecinos" placeholder="Nombre1/Nombre2/Nombre3" class="vecinos" id="vecinoss"
+                    autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Tipo</h2>
+                <input type="text" name="nTipo" placeholder="escalera/convencional/salida/salidaPredeterminada"
+                    class="tipo" id="tipoo" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Equivalente</h2>
+                <input type="text" name="nEquivalente" placeholder="(fila, columna) - escaleras" class="equivalente"
+                    id="equivalentee" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Latitud</h2>
+                <input type="text" name="nLatitud" placeholder="Latitud" class="geograficas"
+                    id="latitudd" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <h2 style="margin-left: 5px; margin-bottom: 2px">Longitud</h2>
+                <input type="text" name="nLongitud" placeholder="Longitud" class="geograficas"
+                    id="longitudd" autocomplete="off">
+            </div>
+            <button type="submit" class="botonadd" />Añadir</button>
+        </form>
+    </div>
+
+    <div class="plantas">
+        <div class=in_plantabaja>
+            <div class="plantabaja">
+                <h3 class="datosHeader">Planta Baja</h3>
+                <div class="datospbajaT" id="T0" style="margin-left:5px;"></div>
+            </div>
+        </div>
+        <div class="planta1">
+            <div class=in_planta1>
+                <h3 class="datosHeader">Primer Piso</h3>
+                <div class="datosp1T" id="T1" style="margin-left:5px;"></div>
+            </div>
+        </div>
+        <div class=in_planta2>
+            <div class="planta2">
+                <h3 class="datosHeader">Segundo Piso</h3>
+                <div class="datosp2T" id="T2" style="margin-left:5px;"></div>
+            </div>
+        </div>
+        <div class=in_planta3>
+            <div class="planta3">
+                <h3 class="datosHeader">Tercer Piso</h3>
+                <div class="datosp3T" id="T3" style="margin-left:5px;"></div>
+            </div>
+        </div>
+        <div class=buttonsMenu>
+            <div>
+                <a href="/sessionLogout" style="background-color: aliceblue;">Log out</a>
+            </div>
+            <div>
+                <button id="updateUsers">Actualizar Usuarios</button>
+            </div>
+            <div>
+                <button id="Dijkstra">Enviar Dijkstra</button>
+            </div>
+            <div>
+                <button id="Usuarios">Enviar Usuarios</button>
+            </div>
+            
+            <form id="formaJSON" action="/mandar-jsonDijkstra" method="POST">
+                <input type="hidden" name="_csrf" value={{csrfToken}}>
+                <div class="form-group">
+                    <input type="hidden" name="virtualContainer" id="virtualContainer" value={{beaconsVirtuales}}>
+                    <input type="hidden" name="JSONContainer" id="JSONContainer" value="">
+                </div>
+            </form>
+            <form id="formaUsers" action="/mandar-jsonUsers" method="POST">
+                <input type="hidden" name="_csrf" value={{csrfToken}}>
+                <div class="form-group">
+                    <input type="hidden" name="UsersContainer" id="UsersContainer" value="">
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="papanodos">
+        <div class="espacionode" id="espaNode">
+
+        </div>
+        <div class="espacionode1" id="espaNode1">
+
+        </div>
+        <div class="espacionode2" id="espaNode2">
+
+        </div>
+        <div class="espacionode3" id="espaNode3">
+
+        </div>
+    </div>
+</main>

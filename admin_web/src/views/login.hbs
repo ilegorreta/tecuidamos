@@ -1,0 +1,87 @@
+<main>
+
+  <div class="logotecuidamos">
+    <img class="logotecuida" src="TECuidamos_Logo.png" alt="si_icon">
+  </div>
+  <div class="logoteclogo">
+    <img class="logotec" src="logotec.png" alt="si_icon">
+  </div>
+  <div class="mainboxlogin">
+    <div class="in_mainbox" id="signup">
+      <div class="iconbox">
+        <h1 class="logginHeader">Administrador<h1>
+            <img class="superintendent_icon" src="iconpng.gif" alt="si_icon" style="margin-left: 5px;">
+      </div>
+      <div class="loggin box">
+        <h2 class="logginHeader">Inicie Sesión</h2>
+      </div>
+      <div class="retrievebox">
+        <!--<label style="margin: 10px">Correo electrónico o nombre de usuario:</label> <br>-->
+        <img class="icon_avatar" src="user_avatar.png" alt="si_icon">
+        <input type="text" name="User" id="User" placeholder="Correo/Usuario" value="" style="margin: 10px"
+          class="usuariologin"> <br>
+      </div>
+      <div class="retrievepassword">
+        <!--<label style="margin: 10px">Contraseña:</label> <br>-->
+        <img class="icon_pass" src="pass_avatar.png" alt="si_icon">
+        <input type="password" name="Password" id="Password" placeholder="Contraseña" value="" style="margin: 10px;"
+          class="contraseña"><br>
+      </div>
+      <div class="buttonbox" id="entrar">
+        <input type="button" class="boton" value="Ingresar" id="boton">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      var firebaseConfig = {
+        apiKey: "AIzaSyAaCeLHGKr1KiV-KfDWAUhfii-IvqnlKZ4",
+        authDomain: "tecuidamos-8274d.firebaseapp.com",
+        projectId: "tecuidamos-8274d",
+        storageBucket: "tecuidamos-8274d.appspot.com",
+        messagingSenderId: "370515451342",
+        appId: "1:370515451342:web:e59aa2a38d78f61c0adf9f",
+        measurementId: "G-NS5VK98CP1"
+
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+      document
+        .getElementById("boton")
+        .addEventListener("click", (event) => {
+          event.preventDefault();
+          const login = document.getElementById("User").value;
+          const password = document.getElementById("Password").value;
+
+          firebase
+            .auth()
+            .signInWithEmailAndPassword(login, password)
+            .then(({ user }) => {
+              return user.getIdToken().then((idToken) => {
+                return fetch("/sessionLogin", {
+                  method: "POST",
+                  headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "CSRF-Token": Cookies.get("XSRF-TOKEN"),
+                  },
+                  body: JSON.stringify({ idToken }),
+                });
+              });
+            })
+            .then(() => {
+              return firebase.auth().signOut();
+            })
+            .then(() => {
+              window.location.assign("/admin");
+            });
+          return false;
+        });
+    });
+  </script>
+
+</main>

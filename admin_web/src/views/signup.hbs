@@ -1,0 +1,82 @@
+<main>
+
+    <div class="logotecuidamos">
+        <img class="logotecuida" src="TECuidamos_Logo.png" alt="si_icon">
+    </div>
+    <div class="logoteclogo">
+        <img class="logotec" src="logotec.png" alt="si_icon">
+    </div>
+    <div class="mainbox">
+        <div class="in_mainbox" id="signup">
+            <div class="iconbox">
+                <h1 class="logginHeader">Administrador<h1>
+                <img class="superintendent_icon" src="iconpng.gif" alt="si_icon">
+            </div>
+            <div class="loggin box">
+                <h2 class="logginHeader">Registrarse</h2>
+            </div>
+            <div class="retrievebox">
+                <!--<label style="margin: 10px">Correo electrónico o nombre de usuario:</label> <br>-->
+                <img class="icon_avatar" src="user_avatar.png" alt="si_icon">
+                <input type="text" name="User" id="User" placeholder="Correo/Usuario" value="" style="margin: 10px" class="usuario"> <br>
+            </div>
+            <div class="retrievepassword">
+                <!--<label style="margin: 10px">Contraseña:</label> <br>-->
+                <img class="icon_pass" src="pass_avatar.png" alt="si_icon">
+                <input type="password" name="Password" id="Password" placeholder="Contraseña" value="" style="margin: 10px;" class="contraseña" ><br>
+            </div>
+            <div class="buttonbox" id="entrar">
+                <input type="button" class="boton" value="Enviar" id="boton">
+            </div>
+        </div>
+    </div>    
+
+    <script>
+        var firebaseConfig = {
+          apiKey: "AIzaSyCmq8KmqolW85TCnZA674l5F830X4ToMD0",
+          authDomain: "pruebafirebasehtml.firebaseapp.com",
+          databaseURL: "https://pruebafirebasehtml-default-rtdb.firebaseio.com",
+          projectId: "pruebafirebasehtml",
+          storageBucket: "pruebafirebasehtml.appspot.com",
+          messagingSenderId: "451245611307",
+          appId: "1:451245611307:web:549db0aad77b1e24098d6e"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+        document
+          .getElementById("boton")
+          .addEventListener("click", (event) => {
+            event.preventDefault();
+            const login = document.getElementById("User").value;
+            const password = document.getElementById("Password").value;
+
+            firebase
+              .auth()
+              .createUserWithEmailAndPassword(login, password)
+              .then(({ user }) => {
+                return user.getIdToken().then((idToken) => {
+                  return fetch("/sessionLogin", {
+                    method: "POST",
+                    headers: {
+                      Accept: "application/json",
+                      "Content-Type": "application/json",
+                      "CSRF-Token": Cookies.get("XSRF-TOKEN"),
+                    },
+                    body: JSON.stringify({ idToken }),
+                  });
+                });
+              })
+              .then(() => {
+                return firebase.auth().signOut();
+              })
+              .then(() => {
+                window.location.assign("/admin");
+              });
+            return false;
+          });
+      </script>
+
+</main>
