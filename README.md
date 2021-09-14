@@ -1,16 +1,10 @@
-# tecuidamos
+# TECuidamos
 
-Aplicación para la creación de un sistema de evacuación inteligente implementado en CEDETEC
+## SISTEMA DE ASISTENCIA PARA LA LOCALIZACIÓN Y EVACUACIÓN EFICIENTE DE PERSONAS EN CEDETEC EN CASO DE EMERGENCIA
 
-## Getting Started
+### La propuesta general del presente proyecto es elaborar un sistema de procesamiento automático y de monitoreo basado en la nube que; localice, proporcione rutas de evacuación, contabilice el número de usuarios y provea de servicios que faciliten el auxilio a personas en CEDETEC en caso de alguna emergencia.
 
-This project is a starting point for a Flutter application.
+### The following diagram represents the different building blocks of the project: 
 
-A few resources to get you started if this is your first Flutter project:
+![alt text](https://github.com/ilegorreta/tecuidamos/blob/main/media/BlockDiagram.png?raw=true)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
